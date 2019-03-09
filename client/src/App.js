@@ -23,34 +23,26 @@ const styles = theme => ({
   },
 })
 
-const customer = [
-  {
-    id: 1,
-    image: "https://placeimg.com/64/64/1",
-    name: "kim gil dong",
-    birthday: "940902",
-    gender: "male",
-    job: "architect"
-  },
-  {
-    id: 2,
-    image: "https://placeimg.com/64/64/2",
-    name: "hong gil dong",
-    birthday: "960303",
-    gender: "male",
-    job: "programmer"
-  },
-  {
-    id: 3,
-    image: "https://placeimg.com/64/64/3",
-    name: "buenos dias",
-    birthday: "740524",
-    gender: "female",
-    job: "skater"
-  }
-];
+
 
 class App extends Component {
+
+  state = {
+    customers:""
+  }
+
+  componentDidMount() {    
+    this.callApi()
+      .then(res => this.setState({customers: res}))
+      .catch(err => console.log(err));
+  }
+
+  callApi = async () => {
+    const response = await fetch('/api/customers');
+    const body = await response.json();
+    return body;
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -67,7 +59,9 @@ class App extends Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {customer.map(c => (
+            
+            {this.state.customers 
+              ? this.state.customers.map(c => (
               <Customer
                 key={c.id}
                 id={c.id}
@@ -77,7 +71,7 @@ class App extends Component {
                 gender={c.gender}
                 job={c.job}
               />
-            ))}
+            )) : <span>데이터를 가져오는 중 입니다.</span>}
           </TableBody>
         </Table>
       </Paper>
