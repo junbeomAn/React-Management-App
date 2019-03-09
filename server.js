@@ -1,38 +1,32 @@
+const fs = require('fs')
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-const port = process.env.PORT || 5000;
+const serverPort = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const data = fs.readFileSync('./database.json');
+const { host, user, password, port, database } = JSON.parse(data);
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+  host,
+  user,
+  password,
+  port,
+  database
+});
+connection.connect();
+
 app.get("/api/customers", (req, res) => {
-  res.send([
-    {
-      id: 1,
-      image: "https://placeimg.com/64/64/1",
-      name: "kim gil dong",
-      birthday: "940902",
-      gender: "male",
-      job: "architect"
-    },
-    {
-      id: 2,
-      image: "https://placeimg.com/64/64/2",
-      name: "hong gil dong",
-      birthday: "960303",
-      gender: "male",
-      job: "programmer"
-    },
-    {
-      id: 3,
-      image: "https://placeimg.com/64/64/3",
-      name: "buenos dias",
-      birthday: "740524",
-      gender: "female",
-      job: "skater"
+  connection.query(
+    "SELECT * FROM CUSTOMER",
+    (err, rows, fields) => {
+      res.send(rows);
     }
-  ]);
+  )
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+app.listen(serverPort, () => console.log(`Listening on port ${serverPort}`));
